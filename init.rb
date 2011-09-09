@@ -14,23 +14,23 @@ class Heroku::Command::Newrelic < Heroku::Command::BaseWithApp
     unpack_newrelic
     continue = app != nil
     if continue && newrelic_missing?
-    	addon = confirm("Execute heroku addons:add newrelic ? (y/n)")
-    	if addon
-    		display("Executing heroku addons:add newrelic")
-    		run_command("addons:add", ["newrelic"])
-    		continue = true
-    	end
+      addon = confirm("Execute heroku addons:add newrelic ? (y/n)")
+      if addon
+        display("Executing heroku addons:add newrelic")
+        run_command("addons:add", ["newrelic"])
+        continue = true
+      end
     end
     if continue && has_git?
-    	continue = confirm("Execute git add newrelic && git commit -m 'add newrelic'? (y/n)")
+      continue = confirm("Execute git add newrelic && git commit -m 'add newrelic'? (y/n)")
     end
     process_commit(continue)
     if continue
-    	continue = confirm("Execute git push heroku master ? (y/n)")
+      continue = confirm("Execute git push heroku master ? (y/n)")
     end
     process_push(continue)
     if continue
-    	continue = confirm("Add javaagent to heroku config var JAVA_OPTS? (y/n)")
+      continue = confirm("Add javaagent to heroku config var JAVA_OPTS? (y/n)")
     end
     process_java_opts(continue)
   end
@@ -38,8 +38,8 @@ class Heroku::Command::Newrelic < Heroku::Command::BaseWithApp
 protected
 
  def newrelic_missing?
- 	   installed = heroku.installed_addons(app)
- 	   if installed.empty?
+     installed = heroku.installed_addons(app)
+     if installed.empty?
         true
      else
         available, pending = installed.partition { |a| a['configured'] }
@@ -48,7 +48,7 @@ protected
           a['name']
         end.sort.each do |addon|
           if addon.start_with?("newrelic")
-          	no_newrelic = false
+            no_newrelic = false
           end
         end
         no_newrelic
@@ -59,7 +59,7 @@ protected
     version = '2.0.4' #extract_option('--versionic', '2.0.4')
     zip = home_directory + "/.heroku/plugins/heroku-newrelic/resources/newrelic_agent#{version}.zip"
     if ! File.exists? zip
-    	download(version, zip)
+      download(version, zip)
     end
     FileUtils.copy(zip, Dir.pwd)
     display("Unpacking newrelic in #{Dir.pwd}/newrelic")
@@ -71,54 +71,54 @@ protected
     jopts = 'JAVA_OPTS'
     agent = '-javaagent:newrelic/newrelic.jar'
     if(execute)
-    	vars = heroku.config_vars(app)
-			if vars.key?(jopts)
-    		if(vars[jopts] =~ /javaagent/) != nil
-    	    display("It appears you have a javaagent defined in #{jopts} => #{vars[jopts]}")
-    	    display("Please update #{jopts} to include #{agent}")
-    		else 
-    	  	newjopts = "#{jopts}=#{vars[jopts]} #{agent}"
-    	  	display("Running heroku config:add '#{newjopts}'")
-    			run_command("config:add", [newjopts])  
-    		end
- 	   else
-  	    display("No heroku config var #{jopts} was found. You should add #{agent} to the command(s) that start JVMs in your app")
-  	  end
-  	else
-  		display(" You should add #{agent} to the command(s) that start JVMs in your app") 
-  	end
+      vars = heroku.config_vars(app)
+      if vars.key?(jopts)
+        if(vars[jopts] =~ /javaagent/) != nil
+          display("It appears you have a javaagent defined in #{jopts} => #{vars[jopts]}")
+          display("Please update #{jopts} to include #{agent}")
+        else 
+          newjopts = "#{jopts}=#{vars[jopts]} #{agent}"
+          display("Running heroku config:add '#{newjopts}'")
+          run_command("config:add", [newjopts])  
+        end
+     else
+        display("No heroku config var #{jopts} was found. You should add #{agent} to the command(s) that start JVMs in your app")
+      end
+    else
+      display(" You should add #{agent} to the command(s) that start JVMs in your app") 
+    end
   end
   
   def process_commit(execute)
-  	 if execute
-  	    display("executing git add newrelic")
-  	    system "git add newrelic"
-  	    display("executing git commit -m 'add newrelic'")
-  	    system "git commit -m 'add newrelic'"
-  	 else
-  	    display("You should run git add newrelic && git commit -m 'add newrelic' to add newrelic to your project")
-  	 end
+     if execute
+        display("executing git add newrelic")
+        system "git add newrelic"
+        display("executing git commit -m 'add newrelic'")
+        system "git commit -m 'add newrelic'"
+     else
+        display("You should run git add newrelic && git commit -m 'add newrelic' to add newrelic to your project")
+     end
   end
    
-	def process_push(execute)
-  	 if(execute)
-  	 		display("executing git push heroku master")
-  	 		system "git push heroku master"
-  	 else
-  	    display("You should run git push heroku master to upload the newrelic agent for this app")
-  	 end
+  def process_push(execute)
+     if(execute)
+        display("executing git push heroku master")
+        system "git push heroku master"
+     else
+        display("You should run git push heroku master to upload the newrelic agent for this app")
+     end
   end
-	
-	def download(version, to)
-	  zipfile = "/newrelic/java-agent/newrelic-api/#{version}/newrelic_agent#{version}.zip"
-		display("downloading #{zipfile}")
-		Net::HTTP.start("download.newrelic.com") do |http|
-    	resp = http.get(zipfile)
-    	open(to, "wb") do |file|
-       	file.write(resp.body)
-  		end
-		end
-		display("Done.")
+  
+  def download(version, to)
+    zipfile = "/newrelic/java-agent/newrelic-api/#{version}/newrelic_agent#{version}.zip"
+    display("downloading #{zipfile}")
+    Net::HTTP.start("download.newrelic.com") do |http|
+      resp = http.get(zipfile)
+      open(to, "wb") do |file|
+        file.write(resp.body)
+      end
+    end
+    display("Done.")
   end
   
 end
