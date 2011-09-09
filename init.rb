@@ -11,8 +11,12 @@ class Heroku::Command::Newrelic < Heroku::Command::BaseWithApp
   # -v, --version VERSION # versoion of newrelic to download, default 2.0.4
   #
   def javaagent
-    unpack_newrelic
     continue = app != nil
+    project_root = %x{git rev-parse --show-toplevel }.strip
+    Dir.chdir(project_root)
+    if continue 
+    	unpack_newrelic
+    end
     if continue && newrelic_missing?
       addon = confirm("Execute heroku addons:add newrelic ? (y/n)")
       if addon
@@ -110,9 +114,10 @@ protected
   end
   
   def download(version, to)
+    host = "download.newrelic.com"
     zipfile = "/newrelic/java-agent/newrelic-api/#{version}/newrelic_agent#{version}.zip"
-    display("downloading #{zipfile}")
-    Net::HTTP.start("download.newrelic.com") do |http|
+    display("Downloading http://#{host}#{zipfile}")
+    Net::HTTP.start(host) do |http|
       resp = http.get(zipfile)
       open(to, "wb") do |file|
         file.write(resp.body)
