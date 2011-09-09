@@ -50,7 +50,7 @@ protected
         no_newrelic = true
         available.map do |a|
           a['name']
-        end.sort.each do |addon|
+        end.each do |addon|
           if addon.start_with?("newrelic")
             no_newrelic = false
           end
@@ -89,7 +89,7 @@ protected
         display("No heroku config var #{jopts} was found. You should add #{agent} to the command(s) that start JVMs in your app")
       end
     else
-      display(" You should add #{agent} to the command(s) that start JVMs in your app") 
+      display("You should add #{agent} to the command(s) that start JVMs in your app") 
     end
   end
   
