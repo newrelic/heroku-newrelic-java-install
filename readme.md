@@ -1,4 +1,4 @@
 `heroku-newrelic`
 
-    $ heroku plugins:install git@github.com:heroku/heroku-newrelic.git
+    $ heroku plugins:install git@github.com:newrelic/heroku-newrelic-java-install.git
     $ heroku newrelic:javaagent 
